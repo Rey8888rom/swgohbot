@@ -13,6 +13,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 from ai_router import ask_ai  # noqa: E402
 from mod_card import build_mod_set_image  # noqa: E402
+from swgoh_gg import player_embed  # noqa: E402
 
 # Показываем в окне командной строки, что происходит
 logging.basicConfig(level=logging.INFO)
@@ -110,6 +111,18 @@ async def on_app_command_error(interaction: discord.Interaction, error: app_comm
 @bot.tree.command(name="ping", description="Проверка: бот жив? (без ИИ)")
 async def slash_ping(interaction: discord.Interaction):
     await interaction.response.send_message("Понг! Бот работает.")
+
+
+@bot.tree.command(name="player", description="Профиль игрока по коду союзника")
+@app_commands.describe(ally_code="Код союзника, 9 цифр")
+async def slash_player(interaction: discord.Interaction, ally_code: str):
+    await interaction.response.defer()
+    try:
+        embed = await player_embed(ally_code)
+        await interaction.followup.send(embed=embed)
+    except Exception as e:
+        log.exception("Ошибка в /player")
+        await interaction.followup.send(f"Ошибка в /player: {str(e)[:300]}")
 
 
 @bot.tree.command(name="mods", description="Прислать набор топ-модов и картинку сетов для персонажа")
